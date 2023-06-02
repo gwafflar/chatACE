@@ -1,7 +1,6 @@
 from dotenv import load_dotenv
 import streamlit as st
 from streamlit_chat import message as st_chat
-from langchain.text_splitter import CharacterTextSplitter
 
 
 import base64
@@ -24,7 +23,7 @@ ACE_DIRECTORY = "data/ACE/"
     #ajouter les chunks pertinents dans un collapse
     #refactoring en plusieurs fichiers
 
-def design_gui() :
+def init_session_variables() :
     if 'chat_history' not in st.session_state:
         st.session_state['chat_history'] = []
     if 'choice' not in st.session_state : #deprecated ? 
@@ -35,28 +34,15 @@ def design_gui() :
         st.session_state['knowledge_base'] = "None"
     if 'analyze_run_ACE' not in st.session_state : 
         st.session_state['analyze_run_ACE'] = False
+    if 'LM model' not in st.session_state : 
+        st.session_state['LM model'] = "None"
 
+def design_gui() :
     st.set_page_config(page_title="Project INFO-H-512 : Current Trends of AI")
     st.header("Answer question from PDF using Large Language Models 💬")
     st.sidebar.markdown("""# Home
                         Insert tutorial here""")
 
-
-
-
-@st.cache_data
-def split_text_into_chunks(text) : 
-    print("function split_text_into_chunks is called.")
-    #/!\ separator different for ACE and newPDF
-    text_splitter = CharacterTextSplitter(
-    separator="Art.",
-    chunk_size=1000, #len of a chunk
-    chunk_overlap=200,  #chunks are overlapping (to avoid losing context)
-    length_function=len
-    )
-    chunks = text_splitter.split_text(text)
-    print(chunks)
-    return chunks 
 
 def provide_chunks_and_generate_answer(knowledge_base, user_question) :
     print("generate_answer")
@@ -64,7 +50,13 @@ def provide_chunks_and_generate_answer(knowledge_base, user_question) :
         docs = knowledge_base.similarity_search(user_question)
         st.write(docs)
     with st.spinner("Generating answer...") :
-        response = generate_answer_from_OpenAI(docs, user_question)
+        if st.session_state["LM model"] == "GPT4" :#check model name :
+            response = generate_answer_from_OpenAI(docs, user_question)
+        elif st.session_state["LM model"] == "Bloom" :
+            response = generate_answer_from_bloom(docs, user_question)
+        else :
+            st.error("Please select a LM model") #btw LM model ne se dit pas 
+            response = "Error : no Language model selected."
     return response
 
 def display_chat_history(chat_history) :
@@ -99,7 +91,7 @@ def display_ACE_files() :
 
 def main():
     load_dotenv()
-    
+    init_session_variables()
     design_gui()
 
     user_choice = st.selectbox(
@@ -142,6 +134,10 @@ def main():
     if st.session_state['choice'] != "Null" :
         user_question = st.text_input("Ask a question:", placeholder="Quel est le rôle de l'Association des Cercles Etudiants ?") #change label and add transparent proposition ? 
         #temperature = st.slider('Select temperature (randomness)', 0.0, 1.0) #default value ? 
+        model = st.radio("Language model :", 
+                    key="LM model", 
+                    options=["GPT4", "Bloom"], #check which model is selected GPT4/3.5/da-vinci ? 
+                 )       
         run_query = st.button("Answer me")
         reset_chat_button = st.button("🔄 Reset history chat")
         if user_question and run_query:

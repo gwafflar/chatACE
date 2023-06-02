@@ -3,9 +3,10 @@ Repository for the course INFO-H512 current trends of AI. Purpose : use Large La
 
 
 #### Setup 
-Get an OpenAI API key and write it in a .env file
+Get an OpenAI and HuggingFace API keys and write it in a .env file
 ```
-$echo "OPENAI_API_KEY="sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" > .env 
+OPENAI_API_KEY='sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+API_KEY_HuggingFace='hf_YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
 ```
 
 Install the requirements : 
