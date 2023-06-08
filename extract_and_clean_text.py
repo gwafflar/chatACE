@@ -66,7 +66,6 @@ def analyze_text_ACE() :
 
 @st.cache_data
 def analyze_text_newPDF(pdf) :
-    print("function analyze_text_ACE")
     text = extract_text_from_one_pdf(pdf)
     text = clean_text(text, [merge_hyphenated_words, remove_multiple_newlines]) #+fix_newlines?
     chunks = split_text_into_chunks(text)

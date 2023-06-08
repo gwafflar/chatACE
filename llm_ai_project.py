@@ -12,16 +12,15 @@ from language_and_ai import *
 ACE_DIRECTORY = "data/ACE/"
 #TODO : 
     #Tutorial in sidebar + explaination page
-    #ACE : hide PDF once displayed
-    #use the temperature
-    #insert other parameter (top_k ?)
-    #use other LL models ? 
+    #coherence in the next part according to ACE or "upload new document" (e.g. prompt)
+    #fix prompt bloom and vicuna (according to ACE or new PDF)
+    #ACE : fix download
+    #insert other parameter (temperature, top_k, ...)
     #rename knowledge database
     #add metadata in every chunk (doc + article n°)
     #change chat icon
     #error : header du ROI apparait à nouveau -> lier au fait qu'on ai laissé les \n ? 
-    #ajouter les chunks pertinents dans un collapse
-    #refactoring en plusieurs fichiers
+    
 
 def init_session_variables() :
     if 'chat_history' not in st.session_state:
@@ -34,9 +33,14 @@ def init_session_variables() :
         st.session_state['knowledge_base'] = "None"
     if 'analyze_run_ACE' not in st.session_state : 
         st.session_state['analyze_run_ACE'] = False
+    st.session_state['analyze_run_PDF'] = False
     if 'LM model' not in st.session_state : 
         st.session_state['LM model'] = "None"
-
+    if 'Part2' not in st.session_state : 
+        st.session_state['Part2'] = False
+    if 'placeholder' not in st.session_state : 
+        st.session_state['placeholder'] = ""
+ 
 def design_gui() :
     st.set_page_config(page_title="Project INFO-H-512 : Current Trends of AI")
     st.header("Answer question from PDF using Large Language Models 💬")
@@ -54,6 +58,8 @@ def provide_chunks_and_generate_answer(knowledge_base, user_question) :
             response = generate_answer_from_OpenAI(docs, user_question)
         elif st.session_state["LM model"] == "Bloom" :
             response = generate_answer_from_bloom(docs, user_question)
+        elif st.session_state["LM model"] == "Vicuna" :
+            response = generate_answer_from_vicuna(docs, user_question)
         else :
             st.error("Please select a LM model") #btw LM model ne se dit pas 
             response = "Error : no Language model selected."
@@ -89,6 +95,38 @@ def display_ACE_files() :
                     st.download_button(label="Download", key=100+i, data=filename, file_name=filename)
 
 
+def display_option_ACE():
+    print("in function display_option_ACE")
+
+    st.write(":two: You can click to display all the rules of the Association des Cercles Etudiants. You can display or download any of these files.")
+    display_ACE_files()
+    if st.session_state['displayFile'] != "None" :
+        hide_file = st.button("Hide document")
+        displayPDF(st.session_state['displayFile'])
+        if hide_file :
+            st.session_state['displayFile'] = "None"
+        #create button to hide the file (using st.empty() ?)
+    st.write(":three: Click on the button to parse and analyze all the files. This way, the content of the documents will be used by the language model to answer questions about it.")
+    run_analyze = st.button("Analyze files")
+    if run_analyze :
+        st.session_state['analyze_run_ACE'] = True
+    if st.session_state['analyze_run_ACE'] == True :
+        analyze_text_ACE()  
+        st.info("The documents are now divided into chunks and can be used by language models.")
+        st.write(":four: You can now ask any question about the rules of the Association des Cercles Etudiants ⬇️")
+        st.session_state["Part2"] = True
+
+def get_placeholder() :
+    placeholder = ""
+    if st.session_state['choice'] == "ACE" :
+        placeholder = "Quel est le rôle de l'Association des Cercles Etudiants ?"
+    elif st.session_state['choice'] == "newPDF" :
+        placeholder = "What is the topic of the document ?"
+    else :
+        placeholder="error"    
+        print("Error : no user choice")
+    return placeholder
+
 def main():
     load_dotenv()
     init_session_variables()
@@ -96,48 +134,47 @@ def main():
 
     user_choice = st.selectbox(
             "Select what document you want the model to answer questions about",
-            ("Select an option", "Statuts ACE", "Upload a new document", "other"))
+            ("Select an option", "Statuts et règlements de l'ACE", "Upload a new document"))
+    st.write(":one: Select an option in the list")
 
     if user_choice == "Select an option" :
-        #display welcome information (basically : select in the list what you want)
-        st.write("Select an option in the list")
         st.session_state['choice'] = "Null"
+        st.session_state['Part2'] = False
 
-    elif user_choice == "Statuts ACE" :
+    elif user_choice == "Statuts et règlements de l'ACE" :
         st.session_state['choice'] = "ACE"
-        st.write("You can click to display all the rules of the Association des Cercles Etudiants. You can display or download any of these files.")
-        display_ACE_files()
-        if st.session_state['displayFile'] != "None" :
-            displayPDF(st.session_state['displayFile'])
-            #create button to hide the file (using st.empty() ?)
-        st.write("Click on the button to parse and analyze all the files. This way, the content of the documents will be used by the language model to answer questions about it.")
-        run_analyze = st.button("Analyze files")
-        if run_analyze :
-            st.session_state['analyze_run_ACE'] = True
-        if st.session_state['analyze_run_ACE'] == True :
-            analyze_text_ACE()  
-            st.info("The documents are now divided into chunks that will be sent to the language model.")
-            st.write("You can now ask any question about the rules of the Association des Cercles Etudiants ⬇️")
-      
+        display_option_ACE()
 
     elif user_choice == "Upload a new document" :
         st.session_state['choice'] = "newPDF"
-        st.info("/!\\ change function split_text_into_chunks")
-        pdfFile = st.file_uploader("Upload your PDF", type="pdf")
+        pdfFile = st.file_uploader(":two: Upload your PDF", type="pdf")
+        run_analyze = False
         if pdfFile is not None:
+            st.write(":three: Click on the button to parse and analyze the PDF. This way, the content of the document will be used by the language model to answer questions about it.")
+            run_analyze = st.button("Analyze file")
+        else :
+            st.session_state['Part2'] = False
+        if run_analyze :
+            st.session_state['analyze_run_PDF'] = True
+        if st.session_state['analyze_run_PDF'] == True :
             analyze_text_newPDF(pdfFile)
-
+            st.session_state["Part2"] = True  
+            st.info("The document is now divided into chunks and can be used by language models.")
+            st.write(":four: You can now ask any question about your PDF ⬇️")
     else : 
         st.session_state['choice'] = "Null"
-        st.write("To Do")
+        st.write("Error : unknow choice")
 
-    if st.session_state['choice'] != "Null" :
-        user_question = st.text_input("Ask a question:", placeholder="Quel est le rôle de l'Association des Cercles Etudiants ?") #change label and add transparent proposition ? 
+    #if st.session_state['choice'] != "Null" :
+    if st.session_state["Part2"] == True :
+        placeholder = get_placeholder()
+        user_question = st.text_input("Ask a question:", placeholder=placeholder)  
         #temperature = st.slider('Select temperature (randomness)', 0.0, 1.0) #default value ? 
-        model = st.radio("Language model :", 
+        model = st.radio(":five: Select a language model :", 
                     key="LM model", 
-                    options=["GPT4", "Bloom"], #check which model is selected GPT4/3.5/da-vinci ? 
+                    options=["GPT4", "Bloom", "Vicuna"], #check which model is selected GPT4/3.5/da-vinci ? 
                  )       
+        st.write(":six: Click on the button :arrow_down: to get an answer !")
         run_query = st.button("Answer me")
         reset_chat_button = st.button("🔄 Reset history chat")
         if user_question and run_query:
@@ -149,7 +186,7 @@ def main():
                 response = provide_chunks_and_generate_answer(st.session_state['knowledge_base'], user_question)
                 pass
             else :
-                st.error("No knowledge_base yet !")
+                st.error('No knowledge_base yet ! Please click on "Analyze files" first.')
             st_chat(response)
             print("\tAnswer : ", response)
             st.session_state['chat_history'].append((response, False))

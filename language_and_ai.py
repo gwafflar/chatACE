@@ -6,13 +6,14 @@ from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import CharacterTextSplitter
 
 import streamlit as st
-import requests
+import requests #for Bloom API
+import replicate #for Vicuna API
 import os
 
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
-
+VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78278bd6771c8b3b2f2a13b"
 
 # ====== Use embeddings to create knoledge base ======== #
 
@@ -53,16 +54,16 @@ def split_text_into_chunks(text) :
     print(chunks)
     return chunks 
 
+
+def extract_text_from_chunks(chunks) :
+    text = ""
+    for chunk in chunks :
+        text+=chunk.page_content+"\n"
+    return text
+
 # ========== OpenAI ============ #
 
 def reformulate_price_request(cb) :
-    """txt = cb.split("\n")
-    token_used = int(txt[0].split(": ")[1])
-    token_prompt = int(txt[1].split(": ")[1])
-    token_completion = int(txt[2].split(": ")[1])
-    success = int(txt[3].split(": ")[1])
-    cost = int(txt[4].split("$")[1])"""
-    #return f"Tokens used : {token_prompt}+{token_completion}={token_used} ({token_prompt+token_completion}). Cost : ${cost}. - {success}."
     return f"Tokens used : {cb.prompt_tokens}+{cb.completion_tokens}={cb.total_tokens} ({cb.prompt_tokens+cb.completion_tokens}). Cost : ${cb.total_cost}."
 
 
@@ -79,18 +80,17 @@ def generate_answer_from_OpenAI(_docs, user_question) :
 
 # ========== Bloom ============ #
 
-def extract_text_from_chunks(chunks) :
-    text = ""
-    for chunk in chunks :
-        text+=chunk.page_content+"\n"
-    return text
-
+prompt_bloom = ["""Dialogue entre un demandeur, et un répondeur qui a accès aux informations suivantes dans le réglement: 
+        -- Début des informations dans le réglement à disposition du répondeur :""",
+        """
+        -- fin des informations à disposition du répondeur
+        Le demandeur pose la question : '""",
+        " ?' Le répondeur lui répond naturellement "]
+#TODO : find better prompt example on the internet (eg on the vicogne github page)
 def create_bloom_prompt(chunks, user_question) :
     raw_text = extract_text_from_chunks(chunks)
-    prompt = """Dialogue entre un demandeur, et un répondeur qui a accès aux informations suivantes dans le réglement: 
--- Début des informations dans le réglement à disposition du répondeur :""" + raw_text + """
--- fin des informations à disposition du répondeur
-Le demandeur pose la question : '""" + user_question + " ?' Le répondeur lui répond naturellement "
+    prompt = prompt_bloom[0] + raw_text + prompt_bloom[1] + user_question + prompt_bloom[1]
+    #prompt="Tu es mon avocat. Je te fournis un texte de réglement. Sur base de ce texte, réponds à ma question que je te poserai après. Voilà mon texte : \n" + raw_text + "\n\n\n Sur base de ces informations, réponds à cette question, en citant les articles dont il relève : " + user_question
     return prompt
 
 def generate_answer_from_bloom(chunks, user_question) :
@@ -108,3 +108,26 @@ def query(payload):
     response = requests.post(API_URL_HuggingFace, headers=headers, json=payload)
     return response.json()[0]['generated_text']
     
+
+# =========== Vicuna =================== #
+
+prompt_vicuna = ["Tu es mon avocat. Je te fournis un texte de réglement. Sur base de ce texte, réponds à ma question que je te poserai après. Voilà mon texte : \n",
+                "\n\n\n Sur base de ces informations, réponds à cette question, en citant les articles dont il relève : "]
+def create_vicuna_prompt(chunks, user_question) :
+    raw_text = extract_text_from_chunks(chunks)
+    prompt = prompt_vicuna[0] + raw_text + prompt_vicuna[1] + user_question
+    return prompt
+
+def generate_answer_from_vicuna(chunks, user_question) :
+    prompt = create_vicuna_prompt(chunks[:1], user_question) 
+    answer = ""
+    output = replicate.run(
+        VICUNA_MODEL,
+        input={"prompt": prompt, "max_lenght":1500}
+    )
+    # The predict method returns an iterator, and you can iterate over that output.
+    for item in output:
+        answer += item
+        print(item, end=" ")
+    print("-end of answer-")
+    return answer
