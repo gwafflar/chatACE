@@ -14,12 +14,19 @@ ACE_DIRECTORY = "data/ACE/"
     #Tutorial in sidebar + explaination page
     #coherence in the next part according to ACE or "upload new document" (e.g. prompt)
     #fix prompt bloom and vicuna (according to ACE or new PDF)
-    #ACE : fix download
+    #ACE : fix download + add charte horaire
     #insert other parameter (temperature, top_k, ...)
     #rename knowledge database
     #add metadata in every chunk (doc + article n°)
     #change chat icon
     #error : header du ROI apparait à nouveau -> lier au fait qu'on ai laissé les \n ? 
+    #generateWithOpenAI : inspect chain. Possibility to use parameters ? 
+
+#TODO in report :
+    #section 2 : definition of LLM
+    #section 3.1.2 : regex
+    #update screenshots
+    #example of quesitons and answer 
     
 
 def init_session_variables() :
@@ -42,10 +49,10 @@ def init_session_variables() :
         st.session_state['placeholder'] = ""
  
 def design_gui() :
-    st.set_page_config(page_title="Project INFO-H-512 : Current Trends of AI")
+    st.set_page_config(page_title="ChatACE - Project INFO-H-512 : Current Trends of AI")
     st.header("Answer question from PDF using Large Language Models 💬")
-    st.sidebar.markdown("""# Home
-                        Insert tutorial here""")
+    #st.sidebar.markdown("""# Home
+    #                    Insert tutorial here""")
 
 
 def provide_chunks_and_generate_answer(knowledge_base, user_question) :
