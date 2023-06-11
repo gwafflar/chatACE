@@ -79,12 +79,12 @@ def generate_answer_from_OpenAI(_docs, user_question) :
 
 # ========== Bloom ============ #
 
-prompt_bloom = ["""Dialogue entre un demandeur, et un répondeur qui a accès aux informations suivantes dans le réglement: 
-        -- Début des informations dans le réglement à disposition du répondeur :""",
+prompt_bloom = ["""Dialogue entre un Alan et Marie. Marie a accès aux informations suivantes dans le réglement: 
+        Début des informations : """,
         """
-        -- fin des informations à disposition du répondeur
-        Le demandeur pose la question : '""",
-        " ?' Le répondeur lui répond naturellement "]
+        - fin des informations à disposition de Marie.
+        Le Alan pose la question : '""",
+        " ?' Marie lui répond naturellement "]
 #TODO : find better prompt example on the internet (eg on the vicogne github page)
 def create_bloom_prompt(chunks, user_question) :
     raw_text = extract_text_from_chunks(chunks[:2])
