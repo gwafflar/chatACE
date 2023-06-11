@@ -44,8 +44,13 @@ def get_knowledge_base_from_chunks(chunks): #rename
 def split_text_into_chunks(text) : 
     print("function split_text_into_chunks is called.")
     #/!\ separator different for ACE and newPDF
+    separator = "."
+    if st.session_state['choice'] == "ACE" :
+        separator = "Art." #for ACE file, separate per article
+    elif st.session_state['choice'] == "newPDF" :
+        separator = "\n"
     text_splitter = CharacterTextSplitter(
-    separator="Art.",
+    separator=separator,
     chunk_size=1000, #len of a chunk
     chunk_overlap=200,  #chunks are overlapping (to avoid losing context)
     length_function=len

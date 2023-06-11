@@ -22,12 +22,6 @@ ACE_DIRECTORY = "data/ACE/"
     #error : header du ROI apparait à nouveau -> lier au fait qu'on ai laissé les \n ? 
     #generateWithOpenAI : inspect chain. Possibility to use parameters ? 
 
-#TODO in report :
-    #section 3.1.2 : regex
-    #update screenshots
-    #3.8 insert bloom and vicuna prompts
-    #4.1.2 insert results for Bloom and Vicuna
-    
 
 def init_session_variables() :
     if 'chat_history' not in st.session_state:
@@ -103,8 +97,6 @@ def display_ACE_files() :
 
 
 def display_option_ACE():
-    print("in function display_option_ACE")
-
     st.write(":two: You can click to display all the rules of the Association des Cercles Etudiants. You can display or download any of these files.")
     display_ACE_files()
     if st.session_state['displayFile'] != "None" :
@@ -112,16 +104,18 @@ def display_option_ACE():
         displayPDF(st.session_state['displayFile'])
         if hide_file :
             st.session_state['displayFile'] = "None"
-        #create button to hide the file (using st.empty() ?)
     st.write(":three: Click on the button to parse and analyze all the files. This way, the content of the documents will be used by the language model to answer questions about it.")
     run_analyze = st.button("Analyze files")
     if run_analyze :
         st.session_state['analyze_run_ACE'] = True
     if st.session_state['analyze_run_ACE'] == True :
-        analyze_text_ACE()  
-        st.info("The documents are now divided into chunks and can be used by language models.")
-        st.write(":four: You can now ask any question about the rules of the Association des Cercles Etudiants ⬇️")
-        st.session_state["Part2"] = True
+        try : 
+            analyze_text_ACE()  
+            st.info("The documents are now divided into chunks and can be used by language models.")
+            st.write(":four: You can now ask any question about the rules of the Association des Cercles Etudiants ⬇️")
+            st.session_state["Part2"] = True
+        except : 
+            st.error("Error while analyzing the file.")
 
 def get_placeholder() :
     placeholder = ""
