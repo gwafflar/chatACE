@@ -23,10 +23,10 @@ ACE_DIRECTORY = "data/ACE/"
     #generateWithOpenAI : inspect chain. Possibility to use parameters ? 
 
 #TODO in report :
-    #section 2 : definition of LLM
     #section 3.1.2 : regex
     #update screenshots
-    #example of quesitons and answer 
+    #3.8 insert bloom and vicuna prompts
+    #4.1.2 insert results for Bloom and Vicuna
     
 
 def init_session_variables() :

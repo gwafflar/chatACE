@@ -51,7 +51,6 @@ def split_text_into_chunks(text) :
     length_function=len
     )
     chunks = text_splitter.split_text(text)
-    print(chunks)
     return chunks 
 
 
@@ -88,9 +87,10 @@ prompt_bloom = ["""Dialogue entre un demandeur, et un répondeur qui a accès au
         " ?' Le répondeur lui répond naturellement "]
 #TODO : find better prompt example on the internet (eg on the vicogne github page)
 def create_bloom_prompt(chunks, user_question) :
-    raw_text = extract_text_from_chunks(chunks)
-    prompt = prompt_bloom[0] + raw_text + prompt_bloom[1] + user_question + prompt_bloom[1]
+    raw_text = extract_text_from_chunks(chunks[:2])
+    #prompt = prompt_bloom[0] + raw_text + prompt_bloom[1] + user_question + prompt_bloom[1]
     #prompt="Tu es mon avocat. Je te fournis un texte de réglement. Sur base de ce texte, réponds à ma question que je te poserai après. Voilà mon texte : \n" + raw_text + "\n\n\n Sur base de ces informations, réponds à cette question, en citant les articles dont il relève : " + user_question
+    prompt = raw_text + "\nQuestion: " + user_question + "\nRéponse: "
     return prompt
 
 def generate_answer_from_bloom(chunks, user_question) :
@@ -114,16 +114,19 @@ def query(payload):
 prompt_vicuna = ["Tu es mon avocat. Je te fournis un texte de réglement. Sur base de ce texte, réponds à ma question que je te poserai après. Voilà mon texte : \n",
                 "\n\n\n Sur base de ces informations, réponds à cette question, en citant les articles dont il relève : "]
 def create_vicuna_prompt(chunks, user_question) :
-    raw_text = extract_text_from_chunks(chunks)
-    prompt = prompt_vicuna[0] + raw_text + prompt_vicuna[1] + user_question
+    raw_text = extract_text_from_chunks(chunks[:1])
+    #prompt = prompt_vicuna[0] + raw_text + prompt_vicuna[1] + user_question
+    #prompt = "Read the following infor : \n" + raw_text + "\n Sur base de ces informations, dites moi " + user_question.lower()
+    prompt =  "\n\n Voici un texte. Sur base de ce texte, réponds à la question.\n " + raw_text + "\n\nQuestion : " + user_question + "\n Réponse: "
+    print(prompt)
     return prompt
 
 def generate_answer_from_vicuna(chunks, user_question) :
-    prompt = create_vicuna_prompt(chunks[:1], user_question) 
+    prompt = create_vicuna_prompt(chunks, user_question) 
     answer = ""
     output = replicate.run(
         VICUNA_MODEL,
-        input={"prompt": prompt, "max_lenght":1500}
+        input={"prompt": prompt, "max_lenght":len(prompt)*3+300}
     )
     # The predict method returns an iterator, and you can iterate over that output.
     for item in output:
