@@ -15,7 +15,7 @@ API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bl
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
 VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78278bd6771c8b3b2f2a13b"
 
-# ====== Use embeddings to create knoledge base ======== #
+# ====== Use embeddings to create knowledge base ======== #
 
 @st.cache_data
 def get_embeddings():
@@ -43,7 +43,6 @@ def get_knowledge_base_from_chunks(chunks): #rename
 @st.cache_data
 def split_text_into_chunks(text) : 
     print("function split_text_into_chunks is called.")
-    #/!\ separator different for ACE and newPDF
     separator = "."
     if st.session_state['choice'] == "ACE" :
         separator = "Art." #for ACE file, separate per article
@@ -90,7 +89,6 @@ prompt_bloom = ["""Dialogue entre un Alan et Marie. Marie a accès aux informati
         - fin des informations à disposition de Marie.
         Le Alan pose la question : '""",
         " ?' Marie lui répond naturellement "]
-#TODO : find better prompt example on the internet (eg on the vicogne github page)
 def create_bloom_prompt(chunks, user_question) :
     raw_text = extract_text_from_chunks(chunks[:2])
     #prompt = prompt_bloom[0] + raw_text + prompt_bloom[1] + user_question + prompt_bloom[1]

@@ -10,23 +10,12 @@ from language_and_ai import *
 
 
 ACE_DIRECTORY = "data/ACE/"
-#TODO : 
-    #Tutorial in sidebar + explaination page
-    #coherence in the next part according to ACE or "upload new document" (e.g. prompt)
-    #fix prompt bloom and vicuna (according to ACE or new PDF)
-    #ACE : fix download + add charte horaire
-    #insert other parameter (temperature, top_k, ...)
-    #rename knowledge database
-    #add metadata in every chunk (doc + article n°)
-    #change chat icon
-    #error : header du ROI apparait à nouveau -> lier au fait qu'on ai laissé les \n ? 
-    #generateWithOpenAI : inspect chain. Possibility to use parameters ? 
-
 
 def init_session_variables() :
+    #init session variables
     if 'chat_history' not in st.session_state:
         st.session_state['chat_history'] = []
-    if 'choice' not in st.session_state : #deprecated ? 
+    if 'choice' not in st.session_state : 
         st.session_state['choice'] = "Null"
     if 'displayFile' not in st.session_state : 
         st.session_state['displayFile'] = "None"
@@ -45,12 +34,10 @@ def init_session_variables() :
 def design_gui() :
     st.set_page_config(page_title="ChatACE - Project INFO-H-512 : Current Trends of AI")
     st.header("Answer question from PDF using Large Language Models 💬")
-    #st.sidebar.markdown("""# Home
-    #                    Insert tutorial here""")
 
 
 def provide_chunks_and_generate_answer(knowledge_base, user_question) :
-    print("generate_answer")
+    #get chunks and call model functions
     with st.expander('Pertinent chunks of the PDFs') :
         docs = knowledge_base.similarity_search(user_question)
         st.write(docs)
@@ -80,7 +67,8 @@ def displayPDF(file):
     # Displaying File
     st.markdown(pdf_display, unsafe_allow_html=True)   
 
-def display_ACE_files() : 
+def display_ACE_files() :
+    #display the list of all the files of the ACE in an expander 
     list_buttons = []
     with st.expander("List of source files (click to expand):", expanded=False) :
         for i, filename in enumerate(os.listdir(ACE_DIRECTORY)):
@@ -96,7 +84,21 @@ def display_ACE_files() :
                     st.download_button(label="Download", key=100+i, data=filename, file_name=filename)
 
 
+def get_placeholder() :
+    #pre-print a string in the input text
+    placeholder = ""
+    if st.session_state['choice'] == "ACE" :
+        placeholder = "Quel est le rôle de l'Association des Cercles Etudiants ?"
+    elif st.session_state['choice'] == "newPDF" :
+        placeholder = "What is the topic of the document ?"
+    else :
+        placeholder="error"    
+        print("Error : no user choice")
+    return placeholder
+
+
 def display_option_ACE():
+    #the elements of the page one the "ACE option" is selected
     st.write(":two: You can click to display all the rules of the Association des Cercles Etudiants. You can display or download any of these files.")
     display_ACE_files()
     if st.session_state['displayFile'] != "None" :
@@ -117,16 +119,25 @@ def display_option_ACE():
         except : 
             st.error("Error while analyzing the file.")
 
-def get_placeholder() :
-    placeholder = ""
-    if st.session_state['choice'] == "ACE" :
-        placeholder = "Quel est le rôle de l'Association des Cercles Etudiants ?"
-    elif st.session_state['choice'] == "newPDF" :
-        placeholder = "What is the topic of the document ?"
+
+def display_pdf_option() :
+    pdfFile = st.file_uploader(":two: Upload your PDF", type="pdf")
+    run_analyze = False
+    if pdfFile is not None:
+        st.write(":three: Click on the button to parse and analyze the PDF. This way, the content of the document will be used by the language model to answer questions about it.")
+        run_analyze = st.button("Analyze file")
     else :
-        placeholder="error"    
-        print("Error : no user choice")
-    return placeholder
+        st.session_state['Part2'] = False
+    if run_analyze :
+        st.session_state['analyze_run_PDF'] = True
+    if st.session_state['analyze_run_PDF'] == True :
+        try :
+            analyze_text_newPDF(pdfFile)
+            st.session_state["Part2"] = True  
+            st.info("The document is now divided into chunks and can be used by language models.")
+            st.write(":four: You can now ask any question about your PDF ⬇️")
+        except : 
+            st.error("Error while analysing the PDF file. Please be sure the file contains text.")
 
 def main():
     load_dotenv()
@@ -138,52 +149,42 @@ def main():
             ("Select an option", "Statuts et règlements de l'ACE", "Upload a new document"))
     st.write(":one: Select an option in the list")
 
+    # Select between ACE and new PDF
     if user_choice == "Select an option" :
         st.session_state['choice'] = "Null"
         st.session_state['Part2'] = False
-
     elif user_choice == "Statuts et règlements de l'ACE" :
         st.session_state['choice'] = "ACE"
         display_option_ACE()
-
     elif user_choice == "Upload a new document" :
         st.session_state['choice'] = "newPDF"
-        pdfFile = st.file_uploader(":two: Upload your PDF", type="pdf")
-        run_analyze = False
-        if pdfFile is not None:
-            st.write(":three: Click on the button to parse and analyze the PDF. This way, the content of the document will be used by the language model to answer questions about it.")
-            run_analyze = st.button("Analyze file")
-        else :
-            st.session_state['Part2'] = False
-        if run_analyze :
-            st.session_state['analyze_run_PDF'] = True
-        if st.session_state['analyze_run_PDF'] == True :
-            analyze_text_newPDF(pdfFile)
-            st.session_state["Part2"] = True  
-            st.info("The document is now divided into chunks and can be used by language models.")
-            st.write(":four: You can now ask any question about your PDF ⬇️")
+        display_pdf_option()
     else : 
         st.session_state['choice'] = "Null"
         st.write("Error : unknow choice")
 
-    #if st.session_state['choice'] != "Null" :
+
+    # Once the file(s) is/are analysed, display the rest of the components
     if st.session_state["Part2"] == True :
         placeholder = get_placeholder()
         user_question = st.text_input("Ask a question:", placeholder=placeholder)  
-        #temperature = st.slider('Select temperature (randomness)', 0.0, 1.0) #default value ? 
+        #temperature = st.slider('Select temperature (randomness)', 0.0, 1.0)
         model = st.radio(":five: Select a language model :", 
                     key="LM model", 
-                    options=["GPT4", "Bloom", "Vicuna"], #check which model is selected GPT4/3.5/da-vinci ? 
+                    options=["GPT4", "Bloom", "Vicuna"],
                  )       
         st.write(":six: Click on the button :arrow_down: to get an answer !")
         run_query = st.button("Answer me")
         reset_chat_button = st.button("🔄 Reset history chat")
+
+        #Display the chat with question and generated answer
         if user_question and run_query:
             st.session_state['chat_history'].append((user_question, True))
             display_chat_history(st.session_state['chat_history'])
             print("\tQuestion : ", user_question)
             response="ok"
             if st.session_state['knowledge_base'] != "None" :
+                #call function to generate answer with model
                 response = provide_chunks_and_generate_answer(st.session_state['knowledge_base'], user_question)
                 pass
             else :
