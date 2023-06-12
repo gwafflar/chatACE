@@ -1,15 +1,16 @@
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
+from langchain.vectorstores import FAISS 
 from langchain.llms import OpenAI
 from langchain.callbacks import get_openai_callback
 from langchain.chains.question_answering import load_qa_chain
 from langchain.text_splitter import CharacterTextSplitter
-
+ 
 import streamlit as st
 import requests #for Bloom API
 import replicate #for Vicuna API
 import os
 
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
