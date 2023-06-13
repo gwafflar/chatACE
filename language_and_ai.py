@@ -26,11 +26,12 @@ VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78
 def get_embeddings():
     print("function get_embeddings is called.")
     try :
-        with get_openai_callback() as cb:
-            embeddings = OpenAIEmbeddings()
-            print(reformulate_price_request(cb), " ")
-    except : 
-        st.error("Error from OpenAI. Missing API KEY ?")
+        #with get_openai_callback() as cb:
+        embeddings = OpenAIEmbeddings()
+        print(embeddings)
+        #    print(reformulate_price_request(cb), " ")
+    except Error as e: 
+        st.error("Error from OpenAI. Missing API KEY ?" + e)
         print("Error : missing API key ? ")
     return embeddings
 
