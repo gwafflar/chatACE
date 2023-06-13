@@ -21,10 +21,10 @@ VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78
 def log_activity(model, user_question, response) :
     try :
         log_filename = "logs/"+model+".log"
-        print("In logging function", log_filename)
         with open(log_filename, 'a') as f:
-            print("aaa")
             f.write("Question :" + user_question + "\nRéponse : "+ response + "\n")
+        with open(log_filename, 'r') as f2 :
+            st.info(f2.read())
     except Exception as e: 
             print("Error while logging : ", e, "\n", model, user_question, response)
 # ====== Use embeddings to create knowledge base ======== #
@@ -153,5 +153,5 @@ def generate_answer_from_vicuna(chunks, user_question) :
         answer += item
         print(item, end=" ")
     print("-end of answer-")
-    log_activity("vicuna", user_question, response)
+    log_activity("vicuna", user_question, output)
     return answer
