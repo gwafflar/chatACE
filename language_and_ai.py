@@ -18,6 +18,15 @@ API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bl
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
 VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78278bd6771c8b3b2f2a13b"
 
+def log_activity(model, user_question, response) :
+    try :
+        log_filename = "logs/"+model+".log"
+        print("In logging function", log_filename)
+        with open(log_filename, 'a') as f:
+            print("aaa")
+            f.write("Question :" + user_question + "\nRéponse : "+ response + "\n")
+    except Exception as e: 
+            print("Error while logging : ", e, "\n", model, user_question, response)
 # ====== Use embeddings to create knowledge base ======== #
 
 @st.cache_data
@@ -83,6 +92,7 @@ def generate_answer_from_OpenAI(_docs, user_question) :
         chain = load_qa_chain(llm, chain_type="stuff")
         response = chain.run(input_documents=_docs, question=user_question)
         print(reformulate_price_request(cb))
+        log_activity("gpt4", user_question, response)
     return response
 
 
@@ -111,11 +121,11 @@ def generate_answer_from_bloom(chunks, user_question) :
         }
     output = query(payload)
     print(output)
+    log_activity("bloom", user_question, output)
     return output
 
 def query(payload):
     response = requests.post(API_URL_HuggingFace, headers=headers, json=payload)
-    st.info(response)
     return response.json()[0]['generated_text']
     
 
@@ -143,4 +153,5 @@ def generate_answer_from_vicuna(chunks, user_question) :
         answer += item
         print(item, end=" ")
     print("-end of answer-")
+    log_activity("vicuna", user_question, response)
     return answer
