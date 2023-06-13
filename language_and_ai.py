@@ -27,10 +27,10 @@ def get_embeddings():
     print("function get_embeddings is called.")
     embeddings = ""
     try :
-        #with get_openai_callback() as cb:
+        with get_openai_callback() as cb:
         embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
         st.write(embeddings)
-        #    print(reformulate_price_request(cb), " ")
+        print(reformulate_price_request(cb), " ")
     except Exception as e: 
         st.error("Error from OpenAI. Missing API KEY ?")
         st.error(e)
