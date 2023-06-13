@@ -12,8 +12,6 @@ import os
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
 
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
@@ -29,7 +27,6 @@ def get_embeddings():
     try :
         with get_openai_callback() as cb:
             embeddings = OpenAIEmbeddings()
-            st.write(embeddings)
         print(reformulate_price_request(cb), " ")
     except Exception as e: 
         st.error("Error from OpenAI. Missing API KEY ?")
@@ -43,10 +40,7 @@ def get_knowledge_base_from_chunks(chunks): #rename
     print("function get_knowledge_base_from_chunks is called.")
     try :
         embeddings = get_embeddings()
-        st.success('got embeddings.')
-        st.write(embeddings)
         knowledge_base = FAISS.from_texts(chunks, embeddings)
-        st.write("got knowledge_base.")
         return knowledge_base
     except Exception as e:
         st.error(e)
