@@ -43,7 +43,9 @@ def get_knowledge_base_from_chunks(chunks): #rename
     print("function get_knowledge_base_from_chunks is called.")
     try :
         embeddings = get_embeddings()
+        st.write('got embeddings.' + embeddings)
         knowledge_base = FAISS.from_texts(chunks, embeddings)
+        st.write("got knowledge_base.")
         return knowledge_base
     except:
         raise ErrorLLM
