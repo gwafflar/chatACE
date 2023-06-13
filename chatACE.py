@@ -13,6 +13,9 @@ ACE_DIRECTORY = "data/ACE/"
 
 def init_session_variables() :
     #init session variables
+    if 'displayed_logs' not in st.session_state:
+        print_logs()
+        st.session_state['displayed_logs'] = True
     if 'chat_history' not in st.session_state:
         st.session_state['chat_history'] = []
     if 'choice' not in st.session_state : 
@@ -41,11 +44,11 @@ def provide_chunks_and_generate_answer(knowledge_base, user_question) :
         docs = knowledge_base.similarity_search(user_question)
         st.write(docs)
     with st.spinner("Generating answer...") :
-        if st.session_state["LM model"] == "GPT4" :#check model name :
+        if st.session_state["LM model"] == "GPT4 (best results)" :#check model name :
             response = generate_answer_from_OpenAI(docs, user_question)
-        elif st.session_state["LM model"] == "Bloom" :
+        elif st.session_state["LM model"] == "Bloom (exotic)" :
             response = generate_answer_from_bloom(docs, user_question)
-        elif st.session_state["LM model"] == "Vicuna" :
+        elif st.session_state["LM model"] == "Vicuna (exeperimental)" :
             response = generate_answer_from_vicuna(docs, user_question)
         else :
             st.error("Please select a LM model") #btw LM model ne se dit pas 
@@ -170,7 +173,7 @@ def main():
         #temperature = st.slider('Select temperature (randomness)', 0.0, 1.0)
         model = st.radio(":five: Select a language model :", 
                     key="LM model", 
-                    options=["GPT4", "Bloom", "Vicuna"],
+                    options=["GPT4 (best results)", "Bloom (exotic)", "Vicuna (exeperimental)"],
                  )       
         st.write(":six: Click on the button :arrow_down: to get an answer !")
         run_query = st.button("Answer me")

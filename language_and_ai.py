@@ -22,16 +22,20 @@ def log_activity(model, user_question, response) :
     try :
         log_filename = "logs/"+model+".log"
         with open(log_filename, 'a') as f:
-            f.write("Question :" + user_question + "\nRéponse : "+ response + "\n")
-        with open(log_filename, 'r') as f2 :
-            st.info(f2.read())
+            f.write("Question :" + user_question + "\nRéponse : "+ response + "\n\n")
     except Exception as e: 
             print("Error while logging : ", e, "\n", model, user_question, response)
+
+def print_logs() :
+    models=["gpt4", "bloom", "vicuna"]
+    for m in models :
+        log_filename = "logs/"+m+".log"
+        with open(log_filename, 'r') as f :
+            print(f.read())
 # ====== Use embeddings to create knowledge base ======== #
 
 @st.cache_data
 def get_embeddings():
-    print("function get_embeddings is called.")
     embeddings = ""
     try :
         with get_openai_callback() as cb:
@@ -138,7 +142,6 @@ def create_vicuna_prompt(chunks, user_question) :
     #prompt = prompt_vicuna[0] + raw_text + prompt_vicuna[1] + user_question
     #prompt = "Read the following infor : \n" + raw_text + "\n Sur base de ces informations, dites moi " + user_question.lower()
     prompt =  "\n\n Voici un texte. Sur base de ce texte, réponds à la question.\n " + raw_text + "\n\nQuestion : " + user_question + "\n Réponse: "
-    print(prompt)
     return prompt
 
 def generate_answer_from_vicuna(chunks, user_question) :
@@ -152,6 +155,5 @@ def generate_answer_from_vicuna(chunks, user_question) :
     for item in output:
         answer += item
         print(item, end=" ")
-    print("-end of answer-")
-    log_activity("vicuna", user_question, output)
+    log_activity("vicuna", user_question, answer)
     return answer
