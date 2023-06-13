@@ -11,7 +11,7 @@ import replicate #for Vicuna API
 import os
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-print(OPENAI_API_KEY)
+print(os.get(OPENAI_API_KEY))
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 print(OPENAI_API_KEY)
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
