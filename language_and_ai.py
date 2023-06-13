@@ -31,7 +31,8 @@ def get_embeddings():
         st.write(embeddings)
         #    print(reformulate_price_request(cb), " ")
     except Exception as e: 
-        st.error("Error from OpenAI. Missing API KEY ?" + e)
+        st.error("Error from OpenAI. Missing API KEY ?")
+        st.error(e)
         print("Error : missing API key ? ")
     return embeddings
 
