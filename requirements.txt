@@ -6,4 +6,4 @@ faiss-cpu==1.7.4
 streamlit-chat==0.0.2.2
 replicate==0.8.3
 openai==0.27.7
-
+tiktoken==0.4.0
