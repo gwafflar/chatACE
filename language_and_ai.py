@@ -28,7 +28,7 @@ def get_embeddings():
     embeddings = ""
     try :
         with get_openai_callback() as cb:
-            embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+            embeddings = OpenAIEmbeddings()
             st.write(embeddings)
         print(reformulate_price_request(cb), " ")
     except Exception as e: 
@@ -121,6 +121,7 @@ def generate_answer_from_bloom(chunks, user_question) :
 
 def query(payload):
     response = requests.post(API_URL_HuggingFace, headers=headers, json=payload)
+    st.info(response)
     return response.json()[0]['generated_text']
     
 

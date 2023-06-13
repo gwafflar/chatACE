@@ -142,12 +142,6 @@ def main():
     load_dotenv()
     init_session_variables()
     design_gui()
-    print(os.getenv("OPENAI_API_KEY"))
-    st.write(os.getenv("OPENAI_API_KEY"))
-    print(OPENAI_API_KEY)
-    st.write(OPENAI_API_KEY)
-    print(API_KEY_HuggingFace)
-    st.write(API_KEY_HuggingFace)
 
     user_choice = st.selectbox(
             "Select what document you want the model to answer questions about",
