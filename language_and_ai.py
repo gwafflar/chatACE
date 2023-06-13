@@ -11,7 +11,11 @@ import replicate #for Vicuna API
 import os
 
 os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+print(OPENAI_API_KEY)
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+print(OPENAI_API_KEY)
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
+print(API_KEY_HuggingFace)
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
 VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78278bd6771c8b3b2f2a13b"
