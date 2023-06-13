@@ -61,8 +61,10 @@ def analyze_text_ACE() :
     chunks = split_text_into_chunks(text)
     try : 
         st.session_state['knowledge_base'] = get_knowledge_base_from_chunks(chunks)
-    except : 
-        st.error("Cannot communicate with LLM")
+    except Exception as e : 
+        print(e)
+        st.error("Cannot communicate with LLM.")
+        st.error(e)
 
 @st.cache_data
 def analyze_text_newPDF(pdf) :
