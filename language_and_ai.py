@@ -28,8 +28,8 @@ def get_embeddings():
     embeddings = ""
     try :
         with get_openai_callback() as cb:
-        embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-        st.write(embeddings)
+            embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+            st.write(embeddings)
         print(reformulate_price_request(cb), " ")
     except Exception as e: 
         st.error("Error from OpenAI. Missing API KEY ?")
