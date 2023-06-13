@@ -10,7 +10,7 @@ import requests #for Bloom API
 import replicate #for Vicuna API
 import os
 
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
