@@ -35,7 +35,8 @@ def get_embeddings():
         st.error("Error from OpenAI. Missing API KEY ?")
         st.error(e)
         print("Error : missing API key ? ")
-    return embeddings
+    finally :
+        return embeddings
 
 @st.cache_data
 def get_knowledge_base_from_chunks(chunks): #rename
