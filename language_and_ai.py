@@ -25,6 +25,7 @@ VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78
 @st.cache_data
 def get_embeddings():
     print("function get_embeddings is called.")
+    embeddings = ""
     try :
         #with get_openai_callback() as cb:
         embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
