@@ -10,24 +10,25 @@ import requests #for Bloom API
 import replicate #for Vicuna API
 import os
 
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
+
 API_KEY_HuggingFace = os.getenv('API_KEY_HuggingFace')
 API_URL_HuggingFace = "https://api-inference.huggingface.co/models/bigscience/bloom"
 headers = {"Authorization": f"Bearer {API_KEY_HuggingFace}"}
+
 VICUNA_MODEL = "replicate/vicuna-13b:6282abe6a492de4145d7bb601023762212f9ddbbe78278bd6771c8b3b2f2a13b"
 
 # ====== Use embeddings to create knowledge base ======== #
 
 @st.cache_data
 def get_embeddings():
-    print("function get_embeddings is called.")
     try :
         with get_openai_callback() as cb:
             embeddings = OpenAIEmbeddings()
             print(reformulate_price_request(cb), " ")
-    except : 
+    except Exception as e : 
         st.error("Error from OpenAI. Missing API KEY ?")
-        print("Error : missing API key ? ")
+        st.error(e)
     return embeddings
 
 @st.cache_data
@@ -37,9 +38,8 @@ def get_knowledge_base_from_chunks(chunks): #rename
         embeddings = get_embeddings()
         knowledge_base = FAISS.from_texts(chunks, embeddings)
         return knowledge_base
-    except:
-        raise ErrorLLM
-
+    except Exception as e:
+        st.error(e)
 
 @st.cache_data
 def split_text_into_chunks(text) : 

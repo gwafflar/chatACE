@@ -11,7 +11,7 @@ Alternatively, you can also run it locally by following the instructions. Howeve
 
 
 #### Setup 
-Get an OpenAI, an HuggingFace and a Replicate API keys and write it in a .env file (if missing , the associate Language Model will not be usable.)
+Get an OpenAI, an HuggingFace and a Replicate API keys and write them in a file `.streamlit/secrets.toml`. The OpenAI's API key is required, else the embeddings cannot be retrieved. If the HuggingFace's or Replicate's API is missing, then the associate Language Model will not be usable.
 ```
 export OPENAI_API_KEY='sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 export API_KEY_HuggingFace='hf_YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY'
