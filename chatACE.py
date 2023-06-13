@@ -35,7 +35,6 @@ def design_gui() :
     st.set_page_config(page_title="ChatACE - Project INFO-H-512 : Current Trends of AI")
     st.header("Answer question from PDF using Large Language Models 💬")
 
-
 def provide_chunks_and_generate_answer(knowledge_base, user_question) :
     #get chunks and call model functions
     with st.expander('Pertinent chunks of the PDFs') :
@@ -143,6 +142,12 @@ def main():
     load_dotenv()
     init_session_variables()
     design_gui()
+    print(os.getenv("OPENAI_API_KEY"))
+    st.write(os.getenv("OPENAI_API_KEY"))
+    print(OPENAI_API_KEY)
+    st.write(OPENAI_API_KEY)
+    print(API_KEY_HuggingFace)
+    st.write(API_KEY_HuggingFace)
 
     user_choice = st.selectbox(
             "Select what document you want the model to answer questions about",
